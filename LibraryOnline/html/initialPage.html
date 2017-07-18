@@ -1,0 +1,1918 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../css/initial.css"/>
+    <script src="../lib/react.js"></script>
+    <script src="../lib/react-dom.js"></script>
+    <script src="../lib/browser.min.js"></script>
+    <title>The Library Online</title>
+</head>
+<body>
+<div class="back">
+    <div id="initialPage"></div>
+</div>
+<script type="text/babel">
+
+    //"书籍内容存储"
+    class Content extends React.Component{
+        constructor(props) {
+            super(props);
+            this.bookname = "";
+            this.bookauthor = "";
+            this.bookcontent = new Array(0);
+            this.titles = new Array(0);
+            this.num = new Array(0);
+            this.GetTitle = this.GetTitle.bind(this);
+            this.GetTitleIndex = this.GetTitleIndex.bind(this);
+            this.titleindex = -1;
+        }
+
+        GetTitle(title){
+            for(let i = 0;i < this.titles.length;i++)
+            {
+                if(this.titles[i] === title)
+                {
+                    this.titleindex = i;
+                    break;
+                }
+                else
+                {
+                    this.titleindex = -1;
+                }
+            }
+        }
+
+        GetTitleIndex(number){
+            let i = 0;
+            this.titleindex = 0;
+            while(i < this.num.length){
+
+                if(number > this.num[i])
+                {
+                    i++;
+                    this.titleindex = i;
+                }
+                else
+                {
+                    i++;
+                }
+            }
+
+            if(this.titleindex === this.num.length)
+            {
+                this.titleindex = -1;
+            }
+        }
+
+        render(){
+            return this;
+        }
+    }
+
+    class BookCon extends React.Component{
+        constructor(props) {
+            super(props);
+            this.book = new Array(0);
+            this.bookindex = -1;
+            this.GetIndex = this.GetIndex.bind(this);
+        }
+        GetIndex(con){
+            for(let i = 0;i<this.book.length;i++)
+            {
+                if(con.bookname === this.book[i].bookname && con.bookauthor === this.book[i].bookauthor)
+                {
+                    this.bookindex = i;
+                    break;
+                }
+                else
+                {
+                    this.bookindex = -1;
+                }
+            }
+        }
+        render(){
+            return this;
+        }
+    }
+
+    //"书籍信息存储"组件
+    class BookMsg extends React.Component {
+        constructor(props) {
+            super(props);
+            this.bookname = "";
+            this.bookauthor = "";
+            this.bookabstract = "";
+            this.outnumber = 0;
+        }
+
+        render() {
+            return this;
+        }
+    }
+
+    //"用户信息村存储"组件
+    class UserDataStore extends React.Component {
+        constructor(props) {
+            super(props);
+            this.username = "";
+            this.keywords = "";
+            this.message = new Array(0);
+            this.books = new Array(0);
+            this.bookIndex = -1;
+        }
+
+        BookMsgPush(bookmsg) {
+            this.books.push(bookmsg);
+        }
+
+        GetBookIndex(bookmsg){
+            for(let i = 0;i < this.books.length;++i)
+            {
+                if(bookmsg.bookname === this.books[i].bookname && bookmsg.bookauthor === this.books[i].bookauthor)
+                {
+                    this.bookIndex = i;
+                    break;
+                }
+                else
+                {
+                    this.bookIndex = -1;
+                }
+            }
+        }
+
+        render() {
+            return this;
+        }
+    }
+    //表示当前的状态，0：未登录，1：登录管理员，2：登录普通用户
+    let userState = 0;
+
+    //"用户存储"组件
+    class UserStore extends React.Component {
+        constructor(props) {
+            super(props);
+            this.dataArray = new Array(0);
+            //记录所要查找信息的索引
+            this.isindex = -1;
+        }
+
+        //获取索引
+        IndexOf(data) {
+            for (let i = 0; i < this.dataArray.length; i++) {
+                if (data.username === this.dataArray[i].username && data.keywords === this.dataArray[i].keywords) {
+                    this.isindex = i;
+                    break;
+                }
+                else {
+                    this.isindex = -1;
+                }
+            }
+        }
+
+        //查找用户的用户名
+        FindUserName(data) {
+            for (let i = 0; i < this.dataArray.length; i++) {
+                if (data.username === this.dataArray[i].username) {
+                    this.isindex = i;
+                    break;
+                }
+                else {
+                    this.isindex = -1;
+                }
+            }
+        }
+
+        //更新用户信息
+        IndexUpdateUser(data) {
+            this.dataArray[this.isindex] = data;
+        }
+
+        //插入信息
+        Push(data) {
+            this.dataArray.push(data);
+        }
+
+        render() {
+            return this;
+        }
+    }
+    const usersdata = new UserStore();
+    let usr = new UserDataStore();
+    usr.username = "root";
+    usr.keywords = "root";
+    usersdata.Push(usr);
+    const bookCon = new BookCon();
+
+
+    //"主页链接"组件
+    class HrefHome extends React.Component {
+        constructor(props) {
+            super(props);
+            this.handleOnclick = this.handleOnclick.bind(this);
+            this.state = {
+                onClickState: false
+            }
+        }
+
+        handleOnclick() {
+            this.setState(
+                {
+                    onClickState: true
+                }
+            )
+        }
+
+        render() {
+            let ischeck = this.state.onClickState;
+            if (ischeck) {
+                return (
+                    ReactDOM.render(
+                            <HomePage/>,
+                        document.getElementById('changePage')
+                    )
+                );
+            }
+            else {
+                return (
+                        <a className="home" onClick={this.handleOnclick}>&nbsp;Return to the Home</a>
+                );
+            }
+        }
+    }
+    //"书籍页面链接"组件
+    class HrefBook extends React.Component {
+        constructor(props) {
+            super(props);
+            this.handleOnclick = this.handleOnclick.bind(this);
+            this.state = {
+                onClickState: false
+            }
+        }
+
+        handleOnclick() {
+            this.setState(
+                {
+                    onClickState: true
+                }
+            )
+        }
+
+        render() {
+            let ischeck = this.state.onClickState;
+            if (ischeck) {
+                return (
+                    ReactDOM.render(
+                            <BookPage/>,
+                        document.getElementById('changePage')
+                    )
+                );
+            }
+            else {
+                return (
+                        <a className="book" onClick={this.handleOnclick}>&nbsp;The list of books</a>
+                );
+            }
+        }
+    }
+
+    //"搜索页面链接"组件
+    class HrefSearch extends React.Component {
+        constructor(props) {
+            super(props);
+            this.handleOnclick = this.handleOnclick.bind(this);
+            this.state = {
+                onClickState: false
+            }
+        }
+
+        handleOnclick() {
+            this.setState(
+                {
+                    onClickState: true
+                }
+            )
+        }
+
+        render() {
+            let ischeck = this.state.onClickState;
+            if (ischeck) {
+                if (userState === 1) {
+                    return (
+                        ReactDOM.render(
+                                <AdminPage/>,
+                            document.getElementById('changePage')
+                        )
+                    );
+                }
+                else if (userState === 2) {
+                    return (
+                        ReactDOM.render(
+                                <UserPage/>,
+                            document.getElementById('changePage')
+                        )
+                    );
+                }
+                else
+                {
+                    alert("请登录！");
+                }
+            }
+            else {
+                return (
+                        <a className="search" onClick={this.handleOnclick}>&nbsp;Personal Center</a>
+                );
+            }
+        }
+    }
+    //"联系管理员链接"组件
+    class HrefContact extends React.Component {
+        constructor(props) {
+            super(props);
+            this.handleOnclick = this.handleOnclick.bind(this);
+            this.state = {
+                onClickState: false
+            }
+        }
+
+        handleOnclick() {
+            this.setState(
+                {
+                    onClickState: true
+                }
+            );
+        }
+
+        render() {
+            let isclick = this.state.onClickState;
+            if (isclick) {
+                if(userState === 2)
+                {
+                    return (
+                        ReactDOM.render(
+                                <ContactPage/>,
+                            document.getElementById('changePage')
+                        )
+                    );
+                }
+                else
+                {
+                    alert("请登录普通用户！");
+                }
+            }
+            else {
+                return (
+                        <a className="contact" onClick={this.handleOnclick}>&nbsp;Contact administrator</a>
+                );
+            }
+        }
+    }
+    //"主页部分"组件
+    class HomePage extends React.Component {
+        render() {
+            return (
+                    <div>
+                        <div>
+                            <h2>Welcome to The World Tree</h2>
+                        </div>
+                        <div className="href">
+                            <HrefHome/><br/><br/>
+                            <HrefBook/><br/><br/>
+                            <HrefSearch/><br/><br/>
+                            <HrefContact/>
+                        </div>
+                    </div>
+            );
+        }
+    }
+
+    //"搜索页面"组件
+    class SearchPage extends React.Component {
+        constructor(props){
+            super(props);
+            this.handleOnclick = this.handleOnclick.bind(this);
+            this.books = "";
+            this.state = {
+                clickState: 0
+            }
+        }
+
+        handleOnclick(){
+            let book = document.getElementById('search').value;
+            let adminbook = usersdata.dataArray[0].books;
+
+            for(let i = 0;i<adminbook.length;++i)
+            {
+                if(book.bookname === adminbook[i].bookname)
+                {
+                    this.books = adminbook[i];
+                    this.setState(
+                        {
+                            clickState: 1
+                        }
+                    );
+                    break;
+                }
+                else
+                {
+                    this.setState(
+                        {
+                            clickState: 0
+                        }
+                    );
+                }
+            }
+        }
+
+        render() {
+            let isclick = this.state.clickState;
+            let book = this.books;
+
+            if(isclick === 1)
+            {
+                return (
+                    ReactDOM.render(
+                        <BookUser userbook = {book}/>,
+                        document.getElementById('changePage')
+                    )
+                );
+            }
+            else if(isclick === -1)
+            {
+                alert("没有这本书!");
+            }
+
+            return (
+                    <div>
+                        <div className="searchPage">
+                            <textarea id="search" type="text" className="searchText"/>
+                            <input type="button" className="search" value = "搜索" onClick={this.handleOnclick}/>
+                        </div>
+                        <Recommend/>
+                    </div>
+            );
+        }
+    }
+    //"作者页面"组件
+    class AuthorPage extends React.Component {
+        render() {
+            let data = usersdata.dataArray[0];
+            let book = [];
+            for(let i = 0;i<data.books.length;i++)
+            {
+                book.push(<BookHrefUser books = {data.books[i]}/>);
+            }
+            return (
+                    <div>
+                        <div>
+                            <h2>The list of authors</h2>
+                        </div>
+                        <div>{book}</div>
+                    </div>
+            );
+        }
+    }
+    //"书籍页面"组件
+    class BookPage extends React.Component {
+        render() {
+            let data = usersdata.dataArray[0];
+            let book = [];
+            for(let i = 0;i<data.books.length;i++)
+            {
+                book.push(<BookHrefUser books = {data.books[i]}/>);
+            }
+            return (
+                    <div>
+                        <div>
+                            <h2>书架</h2>
+                        </div>
+                        <div>{book}</div>
+                    </div>
+            );
+        }
+    }
+    //"联系管理员页面"组件
+    class ContactPage extends React.Component {
+        constructor(props) {
+            super(props);
+            this.getHandleOnclick = this.getHandleOnclick.bind(this);
+            this.clearHandleOnclick = this.clearHandleOnclick.bind(this);
+        }
+
+        //点击按钮获取文本框中的值
+        getHandleOnclick() {
+            let msg = document.getElementById('contact').value;
+            if(msg === "")
+            {
+                alert("内容不能为空！");
+            }
+            else
+            {
+                let data = usersdata.dataArray[usersdata.isindex];
+                data.message.push(data.username + ":" + msg);
+                usersdata.IndexUpdateUser(data);
+                alert("提交意见成功！");
+            }
+        }
+
+        //点击按钮清空文本框中的值
+        clearHandleOnclick() {
+            document.getElementById('contact').value = '';
+        }
+
+        render() {
+            return (
+                <div>
+                    <h2>Contact your administrator</h2>
+                    <p className="contactText">Enter your advice:</p>
+                    <textarea id="contact" cols="158" rows="9" maxLength="999" wrap="hard"/>
+                    <input type="button" className=" button clearMsg" value="清除" onClick={this.clearHandleOnclick}/>
+                    <input type="button" className=" button sendMsg" value="提交" onClick={this.getHandleOnclick}/>
+                </div>
+            );
+        }
+    }
+    //"显示已注册用户"组件
+    class RegisterUser extends React.Component {
+        constructor(props) {
+            super(props);
+            this.handleOnclick = this.handleOnclick.bind(this);
+            this.state = {
+                onclickState: false
+            }
+        }
+
+        handleOnclick() {
+            this.setState(
+                {
+                    onClickState: true
+                }
+            );
+        }
+
+        render() {
+            let ischeck = this.state.onClickState;
+            if (ischeck) {
+                //将数组中的用户放到数组中
+                let user = [];
+                for (let i = 0; i < usersdata.dataArray.length; i++) {
+                    let data = usersdata.dataArray[i];
+                    if (data.username !== "root") {
+                        user.push(<p className="users">{data.username}</p>);
+                        for (let j = 0; j < data.books.length; j++) {
+                            user.push(<p className="books">{data.books[j].bookname}</p>)
+                        }
+                    }
+                }
+                return (
+                    ReactDOM.render(
+                            <div>
+                                <a className="user" onClick={this.handleOnclick}>用户信息</a>
+                                <div>{user}</div>
+                            </div>,
+                        document.getElementById('registerUser')
+                    )
+                );
+            }
+
+            return (
+                    <a className="user" onClick={this.handleOnclick}>用户信息</a>
+            );
+        }
+    }
+    //"显示用户建议"组件
+    class UserAdvice extends React.Component {
+        constructor(props) {
+            super(props);
+            this.handleOnclick = this.handleOnclick.bind(this);
+            this.state = {
+                onClickState: false
+            }
+        }
+
+        handleOnclick() {
+            this.setState(
+                {
+                    onClickState: true
+                }
+            );
+        }
+
+        render() {
+            let ischeck = this.state.onClickState;
+            if (ischeck) {
+                //将数组中的用户建议存放在数组its中
+                let its = [];
+                for (let i = 0; i < usersdata.dataArray.length; i++) {
+                    let data = usersdata.dataArray[i];
+                    if (data.username !== "root") {
+                        for (let j = 0; j < data.message.length; j++) {
+                            its.push(<p className="advices">{data.message[j]}</p>);
+                        }
+                    }
+                }
+                return (
+                    ReactDOM.render(
+                            <div>
+                                <a className="advice" onClick={this.handleOnclick}>用户建议</a>
+                                <div>{its}</div>
+                            </div>,
+                        document.getElementById('userAdvice')
+                    )
+                );
+            }
+            return (
+                    <a className="advice" onClick={this.handleOnclick}>用户建议</a>
+            );
+        }
+    }
+    //"管理员书籍页面"组件
+    class BookManage extends React.Component{
+        constructor(props){
+            super(props);
+            this.handleOnclick = this.handleOnclick.bind(this);
+            this.putinOnclick = this.putinOnclick.bind(this);
+            this.state = {
+                onClickState: false
+            }
+        }
+
+        putinOnclick(){
+            let title = document.getElementById('titleName').value;
+            let number = document.getElementById('titleNumber').value;
+            let msg = document.getElementById('titleMsg').value;
+
+            if(title === "" || number === "" || msg === "")
+            {
+                alert("内容不能为空！");
+            }
+            else
+            {
+                let content = new Content();
+                content.bookname = this.props.managebook.bookname;
+                content.bookauthor = this.props.managebook.bookauthor;
+                bookCon.GetIndex(content);
+
+                if(bookCon.bookindex === -1)
+                {
+                    content.bookcontent.push(msg);
+                    content.titles.push(title);
+                    content.num.push(number);
+                    bookCon.book.push(content);
+                }
+                else
+                {
+                    bookCon.book[bookCon.bookindex].GetTitleIndex(number);
+                    let pos = bookCon.book[bookCon.bookindex].titleindex;
+                    if(pos === -1)
+                    {
+                        bookCon.book[bookCon.bookindex].bookcontent.push(msg);
+                        bookCon.book[bookCon.bookindex].titles.push(title);
+                        bookCon.book[bookCon.bookindex].num.push(number);
+                    }
+                    else
+                    {
+                        bookCon.book[bookCon.bookindex].bookcontent.splice(pos,0,msg);
+                        bookCon.book[bookCon.bookindex].titles.splice(pos,0,title);
+                        bookCon.book[bookCon.bookindex].num.splice(pos,0,number);
+                    }
+                }
+                debugger;
+
+                alert("书籍内容输入成功");
+
+                document.getElementById('titleName').value = "";
+                document.getElementById('titleNumber').value = "";
+                document.getElementById('titleMsg').value = "";
+            }
+        }
+
+        handleOnclick(){
+            this.setState(
+                {
+                    onClickState: true
+                }
+            );
+        }
+
+        render(){
+            let isclick = this.state.onClickState;
+
+            if(isclick)
+            {
+                let issure = confirm("你确定要将该书籍下架吗?");
+                if(issure)
+                {
+                    let book = this.props.managebook;
+                    usersdata.dataArray[0].GetBookIndex(book);
+                    let index = usersdata.dataArray[0].bookIndex;
+                    if(index !== -1)
+                    {
+                        usersdata.dataArray[0].books.splice(index,1);
+                    }
+                    return (
+                        ReactDOM.render(
+                            <AdminPage/>,
+                            document.getElementById('changePage')
+                        )
+                    );
+                }
+            }
+            return (
+                <div>
+                    <h2>Book Management Center</h2>
+                    <p className="offShelf">书籍信息:</p>
+                    <p className = "manage title">书籍:{this.props.managebook.bookname}</p>
+                    <p className = "manage author">作者:{this.props.managebook.bookauthor}</p>
+                    <p className="manage abstract">描述:{this.props.managebook.bookabstract}</p>
+                    <p className="manage times">收藏次数:{this.props.managebook.outnumber}</p>
+                    <p className="offShelf">输入内容:</p>
+                    <p className="titleMsg">章节名:</p>
+                    <textarea id="titleName" className="titleText" cols="25" rows="1" maxLength="25" wrap="hard"/>
+                    <p className="titleMsg">章节数:</p>
+                    <textarea id="titleNumber" className="titleText" cols="25" rows="1" maxLength="25" wrap="hard"/>
+                    <p className="titleMsg">章节内容:</p>
+                    <textarea id="titleMsg" className="titleText" cols="75" rows="10" maxLength="5000" wrap="hard"/><br/>
+                    <input type="button" className="button putUp" value = "录入内容" onClick={this.putinOnclick}/>
+                    <p className="offShelf">你想要将这本书籍下架吗?</p>
+                    <input type = "button" className = "button offShelf" value = " 下架" onClick = {this.handleOnclick}/>
+                </div>
+            );
+        }
+    }
+    //"书籍链接"组件
+    class BookHref extends React.Component{
+        constructor(props){
+            super(props);
+            this.handleOnclick = this.handleOnclick.bind(this);
+            this.state = {
+                onClickState: false
+            }
+        }
+
+        handleOnclick(){
+            this.setState(
+                {
+                    onClickState: true
+                }
+            );
+        }
+
+        render(){
+            let isclick = this.state.onClickState;
+            if(isclick)
+            {
+                let book = this.props.books;
+                return (
+                    ReactDOM.render(
+                        <BookManage managebook = {book}/>,
+                        document.getElementById('changePage')
+                    )
+                );
+            }
+            return (
+                <a className = "bookList" onClick = {this.handleOnclick}>{this.props.books.bookname}&nbsp;&nbsp;</a>
+            );
+        }
+    }
+    //"书籍操作"组件
+    class BookOperate extends React.Component{
+        constructor(props) {
+            super(props);
+            this.putHandleOnclick = this.putHandleOnclick.bind(this);
+            this.clearHandleOnclick = this.clearHandleOnclick.bind(this);
+        }
+
+        putHandleOnclick() {
+            let book = new BookMsg();
+            book.bookname = document.getElementById('bookName').value;
+            book.bookauthor = document.getElementById('bookAuthor').value;
+            book.bookabstract = document.getElementById('bookMsg').value;
+
+            if(book.bookname === "" || book.bookauthor === "" || book.bookabstract === "")
+            {
+                alert("内容不能为空！");
+            }
+            else
+            {
+                let data = usersdata.dataArray[0];
+                let isexit = -1;
+                for (let i = 0; i < data.books.length; i++) {
+                    if (book.bookname === data.books[i].bookname && book.bookauthor === data.books[i].bookauthor) {
+                        isexit = i;
+                    }
+                }
+                if (isexit === -1) {
+                    usersdata.dataArray[0].BookMsgPush(book);
+                    alert("书籍上架成功！");
+                    document.getElementById('bookName').value = "";
+                    document.getElementById('bookAuthor').value = "";
+                    document.getElementById('bookMsg').value = "";
+                }
+                else {
+                    alert("这本书已上架!");
+                }
+            }
+        }
+
+        clearHandleOnclick(){
+            document.getElementById('bookName').value = "";
+            document.getElementById('bookAuthor').value = "";
+            document.getElementById('bookMsg').value = "";
+        }
+
+        render() {
+            let data = usersdata.dataArray[0];
+            let book = [];
+            for(let i = 0;i < data.books.length;i++)
+            {
+                book.push(<BookHref books = {data.books[i]}/>);
+            }
+
+            return (
+                    <div>
+                        <p className = "bookShelf">书架</p>
+                        <div className = "bookList">{book}</div>
+                        <p className = "bookShelf">即将上架书籍</p>
+                        <div>
+                            <p className="bookMsg">书籍:</p>
+                            <textarea id="bookName" className="bookText" cols="25" rows="1" maxLength="25" wrap="hard"/>
+                            <p className="bookMsg">作者:</p>
+                            <textarea id="bookAuthor" className="bookText" cols="25" rows="1" maxLength="25" wrap="hard"/>
+                            <p className="bookMsg">描述:</p>
+                            <textarea id="bookMsg" className="bookText" cols="75" rows="3" maxLength="225" wrap="hard"/><br/>
+                            <input type="button" className="button clearBook" value = "清除" onClick={this.clearHandleOnclick}/>
+                            <input type="button" className="button putBook" value = "上架" onClick={this.putHandleOnclick}/>
+                        </div>
+                    </div>
+            );
+        }
+    }
+    //"显示书籍信息"组件
+    class AboutBook extends React.Component {
+        constructor(props) {
+            super(props);
+            this.handleOnclick = this.handleOnclick.bind(this);
+            this.state = {
+                onClickState: false
+            }
+        }
+
+        handleOnclick() {
+            this.setState(
+                {
+                    onClickState: true
+                }
+            );
+        }
+
+        render() {
+            let ischeck = this.state.onClickState;
+            if (ischeck) {
+                return (
+                    ReactDOM.render(
+                            <div>
+                                <a className="aboutBook" onClick={this.handleOnclick}>书籍信息</a>
+                                <BookOperate/>
+                            </div>,
+                        document.getElementById('aboutBook')
+                    )
+                );
+            }
+            return (
+                    <a className="aboutBook" onClick={this.handleOnclick}>书籍信息</a>
+            );
+        }
+    }
+    //"管理员页面"组件
+    class AdminPage extends React.Component {
+        constructor(props) {
+            super(props);
+        }
+
+        render(){
+            return (
+                    <div>
+                        <h2>Administrator</h2>
+                        <div id="registerUser"><RegisterUser/></div>
+                        <br/>
+                        <div id="userAdvice"><UserAdvice/></div>
+                        <br/>
+                        <div id="aboutBook"><AboutBook/></div>
+                    </div>
+            );
+        }
+    }
+
+    let times = 0;
+    //"获取下一章内容"组件
+    class GetNext extends React.Component{
+        constructor(props){
+            super(props);
+            this.nextOnclick = this.nextOnclick.bind(this);
+            this.state = {
+                nextonClickState: false
+            }
+        }
+
+        nextOnclick(){
+            times++;
+            this.setState(
+                {
+                    nextonClickState: true
+                }
+            );
+        }
+
+        render() {
+            let index0 = usersdata.dataArray[0].bookIndex;
+            let book = usersdata.dataArray[0].books[index0];
+            let content = new Content();
+            content.bookname = book.bookname;
+            content.bookauthor = book.bookauthor;
+            bookCon.GetIndex(content);
+            let index = bookCon.bookindex;
+            let con = bookCon.book[index];
+            con.GetTitle(this.props.ti);
+            let number = con.titleindex + times;
+
+            let nextclick = this.state.nextonClickState;
+
+            if(nextclick)
+            {
+                if(number >= con.num.length)
+                {
+                    alert("这是最后一章，后面没有其他章节！");
+                }
+                else
+                {
+                    let num = con.num[number];
+                    let tit = con.titles[number];
+                    let detail = con.bookcontent[number];
+                    return (
+                        ReactDOM.render(
+                                <div>
+                                    <h4 className="title">第{num}章:{tit}</h4>
+                                    <p className="content">{detail}</p>
+                                </div>,
+                            document.getElementById('content')
+                        )
+                    );
+                }
+            }
+
+            return (
+                    <input type="button" className="button next" value="下一章" onClick={this.nextOnclick}/>
+            );
+        }
+    }
+
+    //"获取前一章节内容"组件
+    class GetPrev extends React.Component{
+        constructor(props){
+            super(props);
+            this.prevOnclick = this.prevOnclick.bind(this);
+            this.state = {
+                prevonClickState: false
+            }
+        }
+
+        prevOnclick(){
+            times--;
+            this.setState(
+                {
+                    prevonClickState: true
+                }
+            );
+        }
+
+        render() {
+            let index0 = usersdata.dataArray[0].bookIndex;
+            let book = usersdata.dataArray[0].books[index0];
+            let content = new Content();
+            content.bookname = book.bookname;
+            content.bookauthor = book.bookauthor;
+            bookCon.GetIndex(content);
+            let index = bookCon.bookindex;
+            let con = bookCon.book[index];
+            con.GetTitle(this.props.titl);
+            let number = con.titleindex + times;
+
+            let prevclick = this.state.prevonClickState;
+            debugger;
+
+            if(prevclick)
+            {
+                if(number <= -1)
+                {
+                    alert("这是第一章，前面没有其他章节！");
+                }
+                else
+                {
+                    let num = con.num[number];
+                    let tit = con.titles[number];
+                    let detail = con.bookcontent[number];
+                    return (
+                        ReactDOM.render(
+                                <div>
+                                    <h4 className="title">第{num}章:{tit}</h4>
+                                    <p className="content">{detail}</p>
+                                </div>,
+                            document.getElementById('content')
+                        )
+                    );
+                }
+            }
+
+            return (
+                    <input type="button" className="button prev" value="上一章" onClick={this.prevOnclick}/>
+            );
+        }
+    }
+
+    //"返回书籍目录"组件
+    class ReturnTable extends React.Component{
+        constructor(props){
+            super(props);
+            this.tableOnclick = this.tableOnclick.bind(this);
+            this.state = {
+                tableonClickState: false
+            }
+        }
+
+        tableOnclick(){
+            this.setState(
+                {
+                    tableonClickState: !this.state.tableonClickState
+                }
+            );
+        }
+
+        render() {
+            let tableclick = this.state.tableonClickState;
+
+            if (tableclick) {
+                let index = usersdata.dataArray[0].bookIndex;
+                let book = usersdata.dataArray[0].books[index];
+                return (
+                    ReactDOM.render(
+                        <BookContent books={book}/>,
+                        document.getElementById('changePage')
+                    )
+                );
+            }
+
+            return (
+                    <input type="button" className="button table" value="目录" onClick={this.tableOnclick}/>
+            );
+        }
+    }
+    //"显示章节内容"组件
+    class GetContent extends React.Component{
+        constructor(props){
+            super(props);
+
+        }
+
+        render(){
+            let headlin = this.props.head;
+
+            return (
+                <div>
+                    <div id = "content">
+                        <h4 className="title">第{this.props.account}章:{this.props.head}</h4>
+                        <p className="content">{this.props.msgs}</p>
+                    </div>
+                    <div className="book" id = "contentButton">
+                        <GetPrev titl = {headlin}/>
+                        <ReturnTable/>
+                        <GetNext ti = {headlin}/>
+                    </div>
+                </div>
+            );
+        }
+    }
+
+    //"书籍目录"组件
+    class GetTable extends React.Component{
+        constructor(props){
+            super(props);
+            this.handleOnclick = this.handleOnclick.bind(this);
+            this.state = {
+                StateOnclick: 0
+            }
+        }
+
+        handleOnclick(){
+            this.setState(
+                {
+                    StateOnclick: 1
+                }
+            );
+        }
+
+        render(){
+            let isclick = this.state.StateOnclick;
+
+            if(isclick === 1)
+            {
+                let line = this.props.headline;
+                let num = this.props.number;
+                let msg = this.props.detail;
+                bookCon.book[bookCon.bookindex].GetTitle(this.props.headLine);
+
+                return (
+                    ReactDOM.render(
+                        <GetContent head = {line} account = {num} msgs = {msg}/>,
+                        document.getElementById('changePage')
+                    )
+                );
+            }
+            return (
+                <div>
+                    <a className="contentLink" onClick={this.handleOnclick}>第{this.props.number}章:{this.props.headline}</a>
+                    <br/>
+                    <br/>
+                </div>
+            );
+        }
+    }
+
+    //"阅读"组件
+    class BookContent extends React.Component{
+        constructor(props){
+            super(props);
+        }
+        render(){
+            let content = new Content();
+            content.bookname = this.props.books.bookname;
+            content.bookauthor = this.props.books.bookauthor;
+            bookCon.GetIndex(content);
+            let index = bookCon.bookindex;
+            let con = bookCon.book[index];
+            let table = [];
+
+            for(let i = 0;i < con.num.length;i++)
+            {
+                table.push(<GetTable headline = {con.titles[i]} number = {con.num[i]} detail = {con.bookcontent[i]}/>);
+            }
+
+
+            return (
+                <div>
+                    <h3 className="book">{content.bookname}</h3>
+                    <div>{table}</div>
+                </div>
+            );
+        }
+    }
+
+    //"书籍收藏"组件
+    class BookUser extends React.Component{
+        constructor(props){
+            super(props);
+            this.handleOnclick = this.handleOnclick.bind(this);
+            this.textOnclick = this.textOnclick.bind(this);
+            this.state = {
+                clickState: 0
+            }
+        }
+
+        textOnclick(){
+            this.setState(
+                {
+                    clickState: 2
+                }
+            );
+        }
+
+        handleOnclick(){
+            let book = this.props.userbook;
+            usersdata.dataArray[usersdata.isindex].GetBookIndex(book);
+            let index = usersdata.dataArray[usersdata.isindex].bookIndex;
+            if(index !== -1)
+            {
+                alert("已成功收藏");
+            }
+            else
+            {
+                this.setState(
+                    {
+                        clickState: 1
+                    }
+                );
+            }
+        }
+
+        render(){
+            let isclick = this.state.clickState;
+            let book = this.props.userbook;
+            usersdata.dataArray[0].GetBookIndex(book);
+            let index0 = usersdata.dataArray[0].bookIndex;
+
+            if(isclick === 1)
+            {
+                if(userState === 2)
+                {
+                    usersdata.dataArray[usersdata.isindex].books.push(this.props.userbook);
+                    usersdata.dataArray[0].books[index0].outnumber++;
+                    alert("收藏成功");
+                }
+                else
+                {
+                    alert("请登录普通用户！");
+                }
+            }
+            else if(isclick === 2){
+                return (
+                    ReactDOM.render(
+                        <BookContent books = {book}/>,
+                        document.getElementById('changePage')
+                    )
+                );
+            }
+            return (
+                    <div>
+                        <p className = "manage title">书籍:{this.props.userbook.bookname}</p>
+                        <p className = "manage author">作者:{this.props.userbook.bookauthor}</p>
+                        <p className="manage abstract">描述:{this.props.userbook.bookabstract}</p>
+                        <input type = "button" className = "button text" value = "开始阅读" onClick = {this.textOnclick}/>
+                        <input type = "button" className = "button collect" value = "收藏本书" onClick = {this.handleOnclick}/>
+                    </div>
+            );
+        }
+    }
+
+    //"普通用户界面"书籍链接
+    class BookHrefUser extends React.Component{
+        constructor(props){
+            super(props);
+            this.handleOnclick = this.handleOnclick.bind(this);
+            this.state = {
+                onClickState: false
+            }
+        }
+
+        handleOnclick(){
+            this.setState(
+                {
+                    onClickState: true
+                }
+            );
+        }
+
+        render(){
+            let isclick = this.state.onClickState;
+            if(isclick)
+            {
+                let book = this.props.books;
+                if(userState === 1)
+                {
+                    return (
+                        ReactDOM.render(
+                            <BookManage managebook = {book}/>,
+                            document.getElementById('changePage')
+                        )
+                    );
+                }
+                else if(userState === 2)
+                {
+                    return (
+                        ReactDOM.render(
+                                <BookUser userbook = {book}/>,
+                            document.getElementById('changePage')
+                        )
+                    );
+                }
+                else
+                {
+                    alert("请登录！");
+                }
+            }
+            return (
+                    <a className = "bookUserList" onClick = {this.handleOnclick}>{this.props.books.bookname}&nbsp;&nbsp;</a>
+            );
+        }
+    }
+
+    //"取消书籍收藏"组件
+    class UnBookUser extends React.Component{
+        constructor(props){
+            super(props);
+            this.handleOnclick = this.handleOnclick.bind(this);
+            this.textOnclick = this.textOnclick.bind(this);
+            this.state = {
+                clickState: 0
+            }
+        }
+
+        textOnclick(){
+            this.setState(
+                {
+                    clickState: 2
+                }
+            );
+        }
+
+        handleOnclick(){
+            let book = this.props.userbook;
+            usersdata.dataArray[usersdata.isindex].GetBookIndex(book);
+            let index = usersdata.dataArray[usersdata.isindex].bookIndex;
+            if(index !== -1)
+            {
+                this.setState(
+                    {
+                        clickState: 1
+                    }
+                );
+            }
+            else
+            {
+                alert("已取消收藏");
+            }
+        }
+
+        render(){
+            let isclick = this.state.clickState;
+            let book = this.props.userbook;
+            usersdata.dataArray[0].GetBookIndex(book);
+            let index0 = usersdata.dataArray[0].bookIndex;
+            usersdata.dataArray[usersdata.isindex].GetBookIndex(book);
+            let index = usersdata.dataArray[usersdata.isindex].bookIndex;
+
+            if(isclick === 1)
+            {
+                usersdata.dataArray[usersdata.isindex].books.splice(index,1);
+                usersdata.dataArray[0].books[index0].outnumber--;
+                alert("取消收藏");
+            }
+            else if(isclick === 2){
+                return (
+                    ReactDOM.render(
+                            <BookContent books = {book}/>,
+                        document.getElementById('changePage')
+                    )
+                );
+            }
+            return (
+                    <div>
+                        <p className = "manage title">书籍:{this.props.userbook.bookname}</p>
+                        <p className = "manage author">作者:{this.props.userbook.bookauthor}</p>
+                        <p className="manage abstract">描述:{this.props.userbook.bookabstract}</p>
+                        <input type = "button" className = "button text" value = "开始阅读" onClick = {this.textOnclick}/>
+                        <input type = "button" className = "button collect" value = "取消收藏" onClick = {this.handleOnclick}/>
+                    </div>
+            );
+        }
+    }
+
+    //"收藏书籍链接"组件
+    class BookHrefCol extends React.Component{
+        constructor(props){
+            super(props);
+            this.handleOnclick = this.handleOnclick.bind(this);
+            this.state = {
+                onClickState: false
+            }
+        }
+
+        handleOnclick(){
+            this.setState(
+                {
+                    onClickState: true
+                }
+            );
+        }
+
+        render(){
+            let isclick = this.state.onClickState;
+            if(isclick)
+            {
+                let book = this.props.books;
+                return (
+                    ReactDOM.render(
+                            <UnBookUser userbook = {book}/>,
+                        document.getElementById('changePage')
+                    )
+                );
+            }
+            return (
+                    <a className = "bookUserList" onClick = {this.handleOnclick}>{this.props.books.bookname}&nbsp;&nbsp;</a>
+            );
+        }
+    }
+
+
+    //"普通用户界面"书架组件
+    class BookShelfUser extends React.Component{
+        constructor(props){
+            super(props);
+            this.handleOnclick = this.handleOnclick.bind(this);
+            this.state = {
+                onClickState: false
+            }
+        }
+        handleOnclick(){
+            this.setState(
+                {
+                    onClickState: true
+                }
+            );
+        }
+
+        render(){
+            let isclick = this.state.onClickState;
+            let data = usersdata.dataArray[0];
+            let book = [];
+            for(let i = 0;i<data.books.length;i++)
+            {
+                book.push(<BookHrefUser books = {data.books[i]}/>);
+            }
+            if(isclick)
+            {
+                return (
+                    ReactDOM.render(
+                        <div>
+                            <a className="bookUser" onClick = {this.handleOnclick}>书架</a>
+                            <br/>
+                            <div className="books">{book}</div>
+                        </div>,
+                        document.getElementById('bookShelf')
+                    )
+                );
+            }
+            return (
+                <div>
+                    <a className="bookUser" onClick = {this.handleOnclick}>书架</a>
+                    <br/>
+                </div>
+            );
+        }
+    }
+    //"普通用户界面"收藏图书组件
+    class BookCollect extends React.Component{
+        constructor(props){
+            super(props);
+            this.handleOnclick = this.handleOnclick.bind(this);
+            this.state = {
+                onClickState: false
+            }
+        }
+        handleOnclick(){
+            this.setState(
+                {
+                    onClickState: true
+                }
+            );
+        }
+
+        render(){
+            let isclick = this.state.onClickState;
+            let data = usersdata.dataArray[usersdata.isindex];
+            let book = [];
+            for(let i = 0;i<data.books.length;i++)
+            {
+                book.push(<BookHrefCol books = {data.books[i]}/>);
+            }
+            if(isclick)
+            {
+                return (
+                    ReactDOM.render(
+                            <div>
+                                <a className="bookUser" onClick = {this.handleOnclick}>收藏书籍</a>
+                                <br/>
+                                <div className="books">{book}</div>
+                            </div>,
+                        document.getElementById('bookCollect')
+                    )
+                );
+            }
+            return (
+                <div>
+                    <a className="bookUser" onClick = {this.handleOnclick}>收藏书籍</a>
+                    <br/>
+                </div>
+            );
+        }
+    }
+    //"普通用户页面"组件
+    class UserPage extends React.Component {
+        constructor(props) {
+            super(props);
+        }
+
+        render() {
+            let dataUser = usersdata.dataArray[usersdata.isindex];
+            return (
+                    <div>
+                        <h2>Welcome to you,{dataUser.username}</h2>
+                        <div id = "bookShelf"><BookShelfUser/></div>
+                        <div id = "bookCollect"><BookCollect/></div>
+                    </div>
+            );
+        }
+    }
+    //"登录注册页面"组件
+    class SignInPage extends React.Component{
+        constructor(props){
+            super(props);
+            this.logInOnclick = this.logInOnclick.bind(this);
+            this.registerOnclick = this.registerOnclick.bind(this);
+            this.state = {
+                logInState: 0
+            }
+        }
+
+        registerOnclick(){
+            let user = document.getElementById('User').value;
+            let key = document.getElementById('Secret').value;
+
+            if(user === "" || key === "")
+            {
+                alert("用户名或密码不能为空！");
+            }
+            else
+            {
+                let data = new UserDataStore();
+                data.username = user;
+                data.keywords = key;
+                usersdata.FindUserName(data);
+                let isTrue = usersdata.isindex;
+                if (isTrue === -1) {
+                    usersdata.Push(data);
+                    alert("注册成功！");
+                }
+                else
+                {
+                    alert("该用户名已被注册");
+                }
+            }
+        }
+        logInOnclick(){
+            let user = document.getElementById('User').value;
+            let key = document.getElementById('Secret').value;
+
+            if(user === "" || key === "")
+            {
+                alert("用户名或密码不能为空！");
+            }
+            else
+            {
+                let data = new UserDataStore();
+                data.username = user;
+                data.keywords = key;
+                //如果输入的信息是管理员的账号与密码，进入管理员界面
+                if (user === "root" && key === "root") {
+                    userState = 1;
+                    this.setState(
+                        {
+                            logInState: 1
+                        }
+                    );
+                }
+                //输入的信息不是管理员的账户与密码，验证账户密码是否匹配，进入普通用户页面
+                else {
+                    usersdata.IndexOf(data);
+                    let isTrue = usersdata.isindex;
+                    //如果账户密码不匹配，弹出页面报错
+                    if (isTrue === -1) {
+                        this.setState(
+                            {
+                                logInState: -1
+                            }
+                        );
+                    }
+                    //匹配的话则进入普通用户界面
+                    else {
+                        userState = 2;
+                        this.setState(
+                            {
+                                logInState: isTrue + 2
+                            }
+                        );
+                    }
+                }
+            }
+        }
+
+        render() {
+            let islogIn = this.state.logInState;
+            if (islogIn === 1) {
+                return (
+                    ReactDOM.render(
+                            <AdminPage/>,
+                        document.getElementById('changePage')
+                    )
+                );
+            }
+            else if (islogIn > 1) {
+                return (
+                    ReactDOM.render(
+                            <UserPage/>,
+                        document.getElementById('changePage')
+                    )
+                );
+            }
+            else if (islogIn === -1) {
+                return (
+                    alert("用户名或密码错误！")
+                );
+            }
+            return (
+                <div className="Login">
+                        <p className="User">用户名:</p>
+                        <textarea id="User" className="User" cols="38" rows="1" maxLength="38" wrap="hard"/>
+                        <p className="Secret">密 码:</p>
+                        <textarea id="Secret" className="Secret" cols="38" rows="1" maxLength="38" wrap="hard"/><br/>
+                        <input type = "button" className="button register" value = "注册" onClick = {this.registerOnclick}/>
+                        <input type = "button" className="button login" value = "登录" onClick = {this.logInOnclick}/>
+                </div>
+            );
+        }
+    }
+
+    //"登录注册"按钮组件
+    class ButtonSignIn extends React.Component {
+        constructor(props) {
+            super(props);
+            this.handleOnclick = this.handleOnclick.bind(this);
+            this.state = {
+                logInState: false
+            };
+        }
+
+        handleOnclick() {
+            //未登录时，用户进行登录或注册
+            if (userState === 0) {
+                this.setState(
+                    {
+                        logInState: true
+                    }
+                );
+            }
+            else {
+                let isquit = confirm("你确定要退出吗?");
+                if (isquit) {
+                    userState = 0;
+                }
+            }
+        }
+
+        render() {
+            let islogIn = this.state.logInState;
+            if(islogIn)
+            {
+                return (ReactDOM.render(
+                        <SignInPage/>,
+                        document.getElementById('changePage')
+                    )
+                );
+            }
+
+            return (<input type="button" className="button logIn" value = "登录/退出" onClick={this.handleOnclick}/>
+            );
+        }
+    }
+    //"个人中心"按钮组件
+    class ButtonPerson extends React.Component {
+        constructor(props) {
+            super(props);
+            this.handleOnclick = this.handleOnclick.bind(this);
+            this.state = {
+                onClickState: 0
+            }
+        }
+
+        handleOnclick() {
+            if (userState === 0) {
+                this.setState(
+                    {
+                        onClickState: 0
+                    }
+                );
+                alert("请登录！");
+            }
+            else if (userState === 1) {
+                this.setState(
+                    {
+                        onClickState: 1
+                    }
+                );
+            }
+            else if (userState === 2) {
+                this.setState(
+                    {
+                        onClickState: 2
+                    }
+                );
+            }
+        }
+
+        render() {
+            let ischeck = this.state.onClickState;
+            if (ischeck === 1) {
+                return (
+                    ReactDOM.render(
+                            <AdminPage/>,
+                        document.getElementById('changePage')
+                    )
+                );
+            }
+            else if (ischeck === 2) {
+                return (
+                    ReactDOM.render(
+                            <UserPage/>,
+                        document.getElementById('changePage')
+                    )
+                );
+            }
+            return (
+                    <input type="button" className="button personButton" value = "个人中心" onClick={this.handleOnclick}/>
+            );
+        }
+    }
+    //"检索"按钮组件
+    class ButtonSearch extends React.Component {
+        constructor(props) {
+            super(props);
+            this.handleOnclick = this.handleOnclick.bind(this);
+            this.state = {
+                onClickState: false
+            }
+        }
+
+        handleOnclick() {
+            this.setState(
+                {
+                    onClickState: true
+                }
+            );
+        }
+
+        render() {
+            let ischeck = this.state.onClickState;
+            if (ischeck) {
+                return (
+                    ReactDOM.render(
+                            <SearchPage/>,
+                        document.getElementById('changePage')
+                    )
+                );
+            }
+            else {
+                return (
+                        <input type="button" className="button searchButton" value = "搜索" onClick={this.handleOnclick}/>
+                );
+            }
+        }
+    }
+    //"主页"按钮组件
+    class ButtonHome extends React.Component {
+        constructor(props) {
+            super(props);
+            this.handleOnclick = this.handleOnclick.bind(this);
+            this.state = {
+                onClickState: false
+            }
+        }
+
+        handleOnclick() {
+            this.setState(
+                {
+                    onClickState: true
+                }
+            );
+        }
+
+        render() {
+            let ischeck = this.state.onClickState;
+            if (ischeck) {
+                return (
+                    ReactDOM.render(
+                            <HomePage/>,
+                        document.getElementById('changePage')
+                    )
+                );
+            }
+            else {
+                return (
+                        <input type="button" className="button homeButton" value = "主页" onClick={this.handleOnclick}/>
+                );
+            }
+        }
+    }
+    //"书籍列表"按钮组件
+    class ButtonBook extends React.Component {
+        constructor(props) {
+            super(props);
+            this.handleOnclick = this.handleOnclick.bind(this);
+            this.state = {
+                onClickState: false
+            }
+        }
+
+        handleOnclick() {
+            this.setState(
+                {
+                    onClickState: true
+                }
+            );
+        }
+
+        render() {
+            let ischeck = this.state.onClickState;
+            if (ischeck) {
+                return (
+                    ReactDOM.render(
+                            <BookPage/>,
+                        document.getElementById('changePage')
+                    )
+                );
+            }
+            else {
+                return (
+                        <input type="button" className="button bookButton" value = "书架" onClick={this.handleOnclick}/>
+                );
+            }
+        }
+    }
+
+    //"联系管理员"按钮组件
+    class ButtonAdministrator extends React.Component {
+        constructor(props) {
+            super(props);
+            this.handleOnclick = this.handleOnclick.bind(this);
+            this.state = {
+                onClickState: false
+            }
+        }
+
+        handleOnclick() {
+            this.setState(
+                {
+                    onClickState: true
+                }
+            );
+        }
+
+        render() {
+            let ischeck = this.state.onClickState;
+            if (ischeck) {
+                if(userState === 2)
+                {
+                    return (
+                        ReactDOM.render(
+                                <ContactPage/>,
+                            document.getElementById('changePage')
+                        )
+                    );
+                }
+                else
+                {
+                    alert("请登录普通用户！");
+                }
+            }
+            else {
+                return (
+                        <input type="button" className="button admin" value = "联系管理员" onClick={this.handleOnclick}/>
+                );
+            }
+        }
+    }
+    //"公共部分"组件
+    class CommonComponent extends React.Component {
+        render() {
+            return (
+                    <div>
+                        <div className="top">
+                            <div className="box">
+                                <div className="loveRead">Loving Reading</div>
+                                <div><img className="top" src="../img/worldTree.jpg"/></div>
+                                <div className="worldTree">The World Tree</div>
+                            </div>
+                            <h1>世界树</h1>
+                        </div>
+                        <div className="button">
+                            <ButtonSignIn/><br/>
+                            <ButtonPerson/><br/>
+                            <ButtonHome/><br/>
+                            <ButtonBook/><br/>
+                            <ButtonAdministrator/>
+                        </div>
+                    </div>
+            );
+        }
+    }
+
+    ReactDOM.render(
+            <div className="total">
+                <CommonComponent/>
+                <div id="changePage">
+                    <HomePage/>
+                </div>
+            </div>,
+        document.getElementById('initialPage')
+    );
+</script>
+</body>
+</html>
